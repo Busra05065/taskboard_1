@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskBoard - Görev Takibi</title>
+</head>
+<body>
+
+    <header>
+        <h1>TaskBoard</h1>
+        <p>Basit görev takip uygulaması</p>
+    </header>
+
+    <main>
+        <!-- Görev Ekleme Formu -->
+        <section aria-labelledby="new-task-title">
+            <h2 id="new-task-title">Yeni Görev</h2>
+            
+            <form id="task-form">
+                <div>
+                    <label for="title">Başlık</label><br>
+                    <input id="title" name="title" type="text" maxlength="80" placeholder="Görev başlığı girin..." required>
+                </div>
+                <br>
+
+                <div>
+                    <label for="priority">Öncelik</label><br>
+                    <select id="priority" name="priority">
+                        <option value="low">Düşük</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="high">Yüksek</option>
+                    </select>
+                </div>
+                <br>
+
+                <div>
+                    <label for="description">Açıklama</label><br>
+                    <textarea id="description" name="description" rows="4" cols="40" placeholder="Görev açıklaması girin..."></textarea>
+                </div>
+                <br>
+
+                <button type="submit">Görevi Kaydet</button>
+            </form>
+        </section>
+
+        <hr>
+
+        <!-- Görev Listesi Tablosu -->
+        <section aria-labelledby="task-list-title">
+            <h2 id="task-list-title">Görev Listesi</h2>
+            
+            <table border="1" cellpadding="8" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th scope="col">Başlık</th>
+                        <th scope="col">Öncelik</th>
+                        <th scope="col">Durum</th>
+                        <th scope="col">Oluşturma Tarihi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Proje ortam kurulumu ve Git başlatma</td>
+                        <td>Yüksek</td>
+                        <td>Tamamlandı</td>
+                        <td>2026-09-19</td>
+                    </tr>
+                    <tr>
+                        <td>Form elemanları ve tablo yapısının kodlanması</td>
+                        <td>Normal</td>
+                        <td>Devam Ediyor</td>
+                        <td>2026-09-20</td>
+                    </tr>
+                    <tr>
+                        <td>CSS ile görsel arayüz düzenlemesi</td>
+                        <td>Düşük</td>
+                        <td>Bekliyor</td>
+                        <td>2026-09-21</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 TaskBoard Uygulaması</p>
+    </footer>
+
+</body>
+</html>
