@@ -3,84 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskBoard - Görev Takibi</title>
-    <!-- CSS Dosyasını Bağlama -->
+    <title>TaskBoard - Responsive Görev Takibi</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <!-- Flexbox Header -->
+    <!-- Header -->
     <header class="page-header">
         <h1>TaskBoard</h1>
         <p>Basit görev takip uygulaması</p>
     </header>
 
     <main class="container">
-        <!-- Kart 1: Görev Ekleme Formu -->
-        <section class="card" aria-labelledby="form-title">
-            <h2 id="form-title">Yeni Görev Ekle</h2>
-            
-            <form id="task-form">
-                <div class="form-group">
-                    <label for="title">Başlık</label>
-                    <input class="form-control" id="title" name="title" type="text" maxlength="80" placeholder="Görev başlığı yazın..." required>
-                </div>
-
-                <div class="form-group">
-                    <label for="priority">Öncelik</label>
-                    <select class="form-control" id="priority" name="priority">
-                        <option value="low">Düşük</option>
-                        <option value="normal" selected>Normal</option>
-                        <option value="high">Yüksek</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="description">Açıklama</label>
-                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Görev detayını yazın..."></textarea>
-                </div>
-
-                <button class="btn" type="submit">Görevi Kaydet</button>
-            </form>
-        </section>
-
-        <!-- Kart 2: Görev Listesi Tablosu -->
-        <section class="card" aria-labelledby="list-title">
-            <h2 id="list-title">Görev Listesi</h2>
-            
-            <div class="table-responsive">
-                <table class="task-table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Başlık</th>
-                            <th scope="col">Öncelik</th>
-                            <th scope="col">Durum</th>
-                            <th scope="col">Oluşturma Tarihi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Proje dokümantasyonunu hazırla</td>
-                            <td><span class="badge badge-high">Yüksek</span></td>
-                            <td>Tamamlandı</td>
-                            <td>2026-09-19</td>
-                        </tr>
-                        <tr>
-                            <td>CSS Box Model ve Flexbox düzeni kur</td>
-                            <td><span class="badge badge-normal">Normal</span></td>
-                            <td>Devam Ediyor</td>
-                            <td>2026-09-20</td>
-                        </tr>
-                        <tr>
-                            <td>JavaScript ile görev ekleme fonksiyonu</td>
-                            <td><span class="badge badge-low">Düşük</span></td>
-                            <td>Bekliyor</td>
-                            <td>2026-09-21</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <!-- 3 KPI Kartı Alanı -->
+        <section class="dashboard-grid" aria-label="Gösterge Paneli">
+            <div class="card kpi-card">
+                <h3>Toplam Görev</h3>
+                <p class="kpi-number">3</p>
+            </div>
+            <div class="card kpi-card">
+                <h3>Açık Görev</h3>
+                <p class="kpi-number">2</p>
+            </div>
+            <div class="card kpi-card">
+                <h3>Tamamlanan</h3>
+                <p class="kpi-number">1</p>
             </div>
         </section>
+
+        <!-- 768px Üstünde İki Kolonlu Grid Düzeni -->
+        <div class="content-layout">
+            <!-- Sol Kolon: Form -->
+            <section class="card" aria-labelledby="form-title">
+                <h2 id="form-title">Yeni Görev Ekle</h2>
+                
+                <form id="task-form">
+                    <div class="form-group">
+                        <label for="title">Başlık</label>
+                        <input class="form-control" id="title" name="title" type="text" maxlength="80" placeholder="Görev başlığı yazın..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="priority">Öncelik</label>
+                        <select class="form-control" id="priority" name="priority">
+                            <option value="low">Düşük</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="high">Yüksek</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Açıklama</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Görev detayını yazın..."></textarea>
+                    </div>
+
+                    <button class="btn" type="submit">Görevi Kaydet</button>
+                </form>
+            </section>
+
+            <!-- Sağ Kolon: Görev Listesi -->
+            <section class="card" aria-labelledby="list-title">
+                <h2 id="list-title">Görev Listesi</h2>
+                
+                <!-- Yatay Taşmayı Önleyen Wrapper -->
+                <div class="table-wrapper">
+                    <table class="task-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Başlık</th>
+                                <th scope="col">Öncelik</th>
+                                <th scope="col">Durum</th>
+                                <th scope="col">Oluşturma Tarihi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Proje mimarisi ve Git kurulumu</td>
+                                <td><span class="badge badge-high">Yüksek</span></td>
+                                <td>Tamamlandı</td>
+                                <td>2026-09-19</td>
+                            </tr>
+                            <tr>
+                                <td>CSS Grid ve Responsive adaptasyon</td>
+                                <td><span class="badge badge-normal">Normal</span></td>
+                                <td>Devam Ediyor</td>
+                                <td>2026-09-20</td>
+                            </tr>
+                            <tr>
+                                <td>JavaScript dinamik veri bağlama</td>
+                                <td><span class="badge badge-low">Düşük</span></td>
+                                <td>Bekliyor</td>
+                                <td>2026-09-21</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
     </main>
 
     <footer class="page-footer">
