@@ -1,4 +1,4 @@
-# D-1 Projesi
+#  Proje
 
 Bu proje, görevlerin kolayca takip edilmesini sağlayan bir TaskBoard uygulamasıdır.
 Proje modern yazılım mimarisine uygun olarak frontend ve backend katmanlarına ayrılmıştır.
