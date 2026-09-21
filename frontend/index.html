@@ -3,48 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskBoard - Responsive Görev Takibi</title>
+    <title>TaskBoard Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <!-- Header -->
+    
     <header class="page-header">
-        <h1>TaskBoard</h1>
-        <p>Basit görev takip uygulaması</p>
+        <div>
+            <h1>TaskBoard</h1>
+            <p class="subtitle">Kişisel Görev Yönetim Paneli</p>
+        </div>
+        <div class="user-badge">
+            <span>Stajyer Paneli</span>
+        </div>
     </header>
 
     <main class="container">
-        <!-- 3 KPI Kartı Alanı -->
-        <section class="dashboard-grid" aria-label="Gösterge Paneli">
-            <div class="card kpi-card">
+        
+        <section class="dashboard-grid" aria-label="Metrik Kartları">
+            <article class="card kpi-card">
                 <h3>Toplam Görev</h3>
+                <p class="kpi-number">5</p>
+            </article>
+            <article class="card kpi-card">
+                <h3>Açık / Devam Eden</h3>
                 <p class="kpi-number">3</p>
-            </div>
-            <div class="card kpi-card">
-                <h3>Açık Görev</h3>
-                <p class="kpi-number">2</p>
-            </div>
-            <div class="card kpi-card">
+            </article>
+            <article class="card kpi-card">
                 <h3>Tamamlanan</h3>
-                <p class="kpi-number">1</p>
-            </div>
+                <p class="kpi-number">2</p>
+            </article>
         </section>
 
-        <!-- 768px Üstünde İki Kolonlu Grid Düzeni -->
+        
         <div class="content-layout">
-            <!-- Sol Kolon: Form -->
-            <section class="card" aria-labelledby="form-title">
-                <h2 id="form-title">Yeni Görev Ekle</h2>
+            
+            <section class="card" aria-labelledby="form-heading">
+                <h2 id="form-heading">Yeni Görev Ekle</h2>
                 
                 <form id="task-form">
                     <div class="form-group">
-                        <label for="title">Başlık</label>
-                        <input class="form-control" id="title" name="title" type="text" maxlength="80" placeholder="Görev başlığı yazın..." required>
+                        <label for="title">Görev Başlığı</label>
+                        <input class="form-control" id="title" name="title" type="text" maxlength="80" placeholder="Örn: API dokümanını hazırla" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="priority">Öncelik</label>
+                        <label for="priority">Öncelik Seviyesi</label>
                         <select class="form-control" id="priority" name="priority">
                             <option value="low">Düşük</option>
                             <option value="normal" selected>Normal</option>
@@ -54,18 +59,24 @@
 
                     <div class="form-group">
                         <label for="description">Açıklama</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Görev detayını yazın..."></textarea>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Göreve dair notlar ve ayrıntılar..."></textarea>
                     </div>
 
                     <button class="btn" type="submit">Görevi Kaydet</button>
                 </form>
             </section>
 
-            <!-- Sağ Kolon: Görev Listesi -->
-            <section class="card" aria-labelledby="list-title">
-                <h2 id="list-title">Görev Listesi</h2>
+            
+            <section class="card" aria-labelledby="list-heading">
+                <h2 id="list-heading">Görev Listesi</h2>
+
                 
-                <!-- Yatay Taşmayı Önleyen Wrapper -->
+                <section class="empty-state" hidden>
+                    <h3>Henüz görev yok</h3>
+                    <p>İlk görevi ekleyerek panoyu başlat.</p>
+                </section>
+                
+                
                 <div class="table-wrapper">
                     <table class="task-table">
                         <thead>
@@ -73,26 +84,38 @@
                                 <th scope="col">Başlık</th>
                                 <th scope="col">Öncelik</th>
                                 <th scope="col">Durum</th>
-                                <th scope="col">Oluşturma Tarihi</th>
+                                <th scope="col">Tarih</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Proje mimarisi ve Git kurulumu</td>
+                            <tr class="priority-high-row">
+                                <td><strong>Veritabanı şema tasarımını tamamla</strong></td>
                                 <td><span class="badge badge-high">Yüksek</span></td>
-                                <td>Tamamlandı</td>
+                                <td><span class="status status-progress">Devam Ediyor</span></td>
+                                <td>2026-09-20</td>
+                            </tr>
+                            <tr class="priority-high-row">
+                                <td><strong>Kritik güvenlik açıklarını kontrol et</strong></td>
+                                <td><span class="badge badge-high">Yüksek</span></td>
+                                <td><span class="status status-open">Açık</span></td>
+                                <td>2026-09-21</td>
+                            </tr>
+                            <tr>
+                                <td>HTML semantik iskeletini kur</td>
+                                <td><span class="badge badge-normal">Normal</span></td>
+                                <td><span class="status status-completed">Tamamlandı</span></td>
+                                <td>2026-09-18</td>
+                            </tr>
+                            <tr>
+                                <td>CSS Grid ve Flexbox düzenini oluştur</td>
+                                <td><span class="badge badge-normal">Normal</span></td>
+                                <td><span class="status status-completed">Tamamlandı</span></td>
                                 <td>2026-09-19</td>
                             </tr>
                             <tr>
-                                <td>CSS Grid ve Responsive adaptasyon</td>
-                                <td><span class="badge badge-normal">Normal</span></td>
-                                <td>Devam Ediyor</td>
-                                <td>2026-09-20</td>
-                            </tr>
-                            <tr>
-                                <td>JavaScript dinamik veri bağlama</td>
+                                <td>Footer ve telif metnini güncelle</td>
                                 <td><span class="badge badge-low">Düşük</span></td>
-                                <td>Bekliyor</td>
+                                <td><span class="status status-open">Açık</span></td>
                                 <td>2026-09-21</td>
                             </tr>
                         </tbody>
@@ -102,8 +125,9 @@
         </div>
     </main>
 
+    
     <footer class="page-footer">
-        <p>&copy; 2026 TaskBoard Uygulaması</p>
+        <p>&copy; 2026 TaskBoard Dashboard - Full-Stack Geliştirme Stajı</p>
     </footer>
 
 </body>
