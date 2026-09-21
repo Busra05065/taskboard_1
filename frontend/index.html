@@ -8,7 +8,6 @@
 </head>
 <body>
 
-    
     <header class="page-header">
         <div>
             <h1>TaskBoard</h1>
@@ -24,15 +23,15 @@
         <section class="dashboard-grid" aria-label="Metrik Kartları">
             <article class="card kpi-card">
                 <h3>Toplam Görev</h3>
-                <p class="kpi-number">5</p>
+                <p class="kpi-number" id="total-tasks">5</p>
             </article>
             <article class="card kpi-card">
                 <h3>Açık / Devam Eden</h3>
-                <p class="kpi-number">3</p>
+                <p class="kpi-number" id="open-tasks">3</p>
             </article>
             <article class="card kpi-card">
                 <h3>Tamamlanan</h3>
-                <p class="kpi-number">2</p>
+                <p class="kpi-number" id="completed-tasks">2</p>
             </article>
         </section>
 
@@ -45,7 +44,7 @@
                 <form id="task-form">
                     <div class="form-group">
                         <label for="title">Görev Başlığı</label>
-                        <input class="form-control" id="title" name="title" type="text" maxlength="80" placeholder="Örn: API dokümanını hazırla" required>
+                        <input class="form-control" id="title" name="title" type="text" maxlength="80" placeholder="Örn: JavaScript fonksiyonlarını bağla" required>
                     </div>
 
                     <div class="form-group">
@@ -59,7 +58,7 @@
 
                     <div class="form-group">
                         <label for="description">Açıklama</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Göreve dair notlar ve ayrıntılar..."></textarea>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Göreve dair notlar..."></textarea>
                     </div>
 
                     <button class="btn" type="submit">Görevi Kaydet</button>
@@ -71,11 +70,10 @@
                 <h2 id="list-heading">Görev Listesi</h2>
 
                 
-                <section class="empty-state" hidden>
+                <section class="empty-state" id="empty-state" hidden>
                     <h3>Henüz görev yok</h3>
                     <p>İlk görevi ekleyerek panoyu başlat.</p>
                 </section>
-                
                 
                 <div class="table-wrapper">
                     <table class="task-table">
@@ -87,7 +85,7 @@
                                 <th scope="col">Tarih</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="task-table-body">
                             <tr class="priority-high-row">
                                 <td><strong>Veritabanı şema tasarımını tamamla</strong></td>
                                 <td><span class="badge badge-high">Yüksek</span></td>
@@ -125,10 +123,11 @@
         </div>
     </main>
 
-    
     <footer class="page-footer">
         <p>&copy; 2026 TaskBoard Dashboard - Full-Stack Geliştirme Stajı</p>
     </footer>
 
+    <!-- JavaScript Dosyasını Bağlama -->
+    <script src="js/app.js"></script>
 </body>
 </html>
