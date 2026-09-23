@@ -5,11 +5,13 @@
 }
 
 <div class="card" style="margin-top: 20px;">
-    <h2>Görev Listesi</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Görev Listesi</h2>
+        <a asp-controller="Tasks" asp-action="Create" class="btn" style="text-decoration: none; font-size: 0.88rem;">+ Yeni Görev Ekle</a>
+    </div>
 
     @if (Model == null || !Model.Any())
     {
-        <!-- Günün Ödevi: Boş liste durumunda özel mesaj -->
         <div class="empty-state">
             <h3>Henüz kayıtlı bir görev bulunmuyor.</h3>
             <p>Yeni bir görev ekleyerek panoyu kullanmaya başlayabilirsiniz.</p>
@@ -23,9 +25,10 @@
                     <tr>
                         <th>ID</th>
                         <th>Başlık</th>
+                        <th>Açıklama</th>
                         <th>Öncelik</th>
                         <th>Durum</th>
-                        <th>Oluşturulma Tarihi</th>
+                        <th>Oluşturulma</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,6 +46,7 @@
                                     @task.Title
                                 }
                             </td>
+                            <td style="color: var(--text-muted); font-size: 0.85rem;">@(task.Description ?? "-")</td>
                             <td>
                                 @if (task.Priority == "high")
                                 {
