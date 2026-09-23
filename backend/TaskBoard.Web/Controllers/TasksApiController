@@ -1,0 +1,86 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
+using TaskBoard.Web.Models;
+
+namespace TaskBoard.Web.Controllers
+{
+    [ApiController]
+    [Route("api/tasks")]
+    public class TasksApiController : ControllerBase
+    {
+        
+        private static readonly List<TaskItem> Tasks = new List<TaskItem>
+        {
+            new TaskItem { Id = 1, Title = "Frontend ve Backend Entegrasyonu", Priority = "high", Status = "in-progress" },
+            new TaskItem { Id = 2, Title = "REST API Endpoint Tasarımı", Priority = "normal", Status = "open" },
+            new TaskItem { Id = 3, Title = "CORS Politikası Yapılandırması", Priority = "low", Status = "completed" }
+        };
+
+        
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            
+            var response = Tasks.Select(t => new
+            {
+                id = t.Id,
+                title = t.Title,
+                priority = t.Priority,
+                status = t.Status,
+                createdAt = t.CreatedAt
+            });
+
+            return Ok(response);
+        }
+
+        
+        [HttpPost]
+        public IActionResult Create([FromBody] CreateTaskRequest request)
+        {
+            
+            if (request == null || string.IsNullOrWhiteSpace(request.Title))
+            {
+                return BadRequest(new { message = "Başlık zorunludur." });
+            }
+
+            var newTask = new TaskItem
+            {
+                Id = Tasks.Count > 0 ? Tasks.Max(t => t.Id) + 1 : 1,
+                Title = request.Title.Trim(),
+                Priority = string.IsNullOrWhiteSpace(request.Priority) ? "normal" : request.Priority,
+                Status = "open"
+            };
+
+            Tasks.Add(newTask);
+
+            
+            return Created($"/api/tasks/{newTask.Id}", new
+            {
+                id = newTask.Id,
+                title = newTask.Title,
+                priority = newTask.Priority,
+                status = newTask.Status
+            });
+        }
+
+        
+        [HttpPatch("{id}/status")]
+        public IActionResult UpdateStatus(int id, [FromBody] UpdateTaskStatusRequest request)
+        {
+            var task = Tasks.FirstOrDefault(t => t.Id == id);
+            if (task == null)
+            {
+                return NotFound(new { message = $"ID: {id} olan görev bulunamadı." });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Status))
+            {
+                return BadRequest(new { message = "Durum alanı boş olamaz." });
+            }
+
+            task.Status = request.Status;
+            return Ok(new { message = "Durum başarıyla güncellendi.", task });
+        }
+    }
+}

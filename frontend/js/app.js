@@ -217,5 +217,24 @@ btnClearStorage.addEventListener('click', function () {
 });
 
 
-loadTasks();
-applyFilterAndRender();
+const API_URL = "http://localhost:5250/api/tasks";
+
+
+async function fetchTasksFromAPI() {
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+            throw new Error(`Sunucu hatası: ${response.status}`);
+        }
+        const data = await response.json();
+        tasks = data; 
+        applyFilterAndRender();
+    } catch (error) {
+        
+        console.error("API Hatası:", error);
+        showAlert("Görevler sunucudan alınamadı. API servisinin açık olduğundan emin olun.", "danger");
+    }
+}
+
+
+fetchTasksFromAPI();
