@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskBoard Dashboard - State & Filtreleme</title>
+    <title>TaskBoard Dashboard - LocalStorage & Async Fetch</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -44,7 +44,7 @@
                 <form id="task-form">
                     <div class="form-group">
                         <label for="title">Görev Başlığı</label>
-                        <input class="form-control" id="title" name="title" type="text" maxlength="80" placeholder="Örn: State mimarisini kur" required>
+                        <input class="form-control" id="title" name="title" type="text" maxlength="80" placeholder="Örn: LocalStorage entegrasyonu" required>
                     </div>
 
                     <div class="form-group">
@@ -63,6 +63,14 @@
 
                     <button class="btn" type="submit">Görevi Kaydet</button>
                 </form>
+
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
+
+                
+                <div class="action-buttons">
+                    <button id="btn-fetch-sample" class="btn btn-secondary" type="button">Örnek Görevleri Getir (Fetch)</button>
+                    <button id="btn-clear-storage" class="btn btn-danger" type="button">Tümünü Temizle</button>
+                </div>
             </section>
 
             
@@ -70,7 +78,6 @@
                 <div class="list-header">
                     <h2 id="list-heading">Görev Listesi</h2>
 
-                    
                     <div class="filter-group">
                         <select id="status-filter" class="form-control filter-control">
                             <option value="all">Tüm Durumlar</option>
@@ -88,9 +95,12 @@
                 </div>
 
                 
+                <div id="status-alert" class="alert-box" hidden></div>
+
+                
                 <section class="empty-state" id="empty-state">
                     <h3>Henüz görev yok</h3>
-                    <p>İlk görevi ekleyerek veya filtreleri temizleyerek panoyu başlat.</p>
+                    <p>Yeni bir görev ekleyin veya "Örnek Görevleri Getir" butonuna tıklayın.</p>
                 </section>
                 
                 
