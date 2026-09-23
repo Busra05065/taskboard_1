@@ -1,0 +1,15 @@
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\bin\Debug\net10.0\TaskBoard.Console.exe
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\bin\Debug\net10.0\TaskBoard.Console.deps.json
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\bin\Debug\net10.0\TaskBoard.Console.runtimeconfig.json
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\bin\Debug\net10.0\TaskBoard.Console.dll
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\bin\Debug\net10.0\TaskBoard.Console.pdb
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\obj\Debug\net10.0\TaskBoard.Console.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\obj\Debug\net10.0\TaskBoard.Console.AssemblyInfoInputs.cache
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\obj\Debug\net10.0\TaskBoard.Console.AssemblyInfo.cs
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\obj\Debug\net10.0\TaskBoard.Console.csproj.CoreCompileInputs.cache
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\obj\Debug\net10.0\TaskBoard.Console.sourcelink.json
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\obj\Debug\net10.0\TaskBoard.Console.dll
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\obj\Debug\net10.0\refint\TaskBoard.Console.dll
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\obj\Debug\net10.0\TaskBoard.Console.pdb
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\obj\Debug\net10.0\TaskBoard.Console.genruntimeconfig.cache
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Console\obj\Debug\net10.0\ref\TaskBoard.Console.dll
