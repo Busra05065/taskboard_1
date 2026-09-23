@@ -1,0 +1,72 @@
+@model List<TaskBoard.Web.Models.TaskItem>
+
+@{
+    ViewData["Title"] = "Görev Listesi";
+}
+
+<div class="card" style="margin-top: 20px;">
+    <h2>Görev Listesi</h2>
+
+    @if (Model == null || !Model.Any())
+    {
+        <!-- Günün Ödevi: Boş liste durumunda özel mesaj -->
+        <div class="empty-state">
+            <h3>Henüz kayıtlı bir görev bulunmuyor.</h3>
+            <p>Yeni bir görev ekleyerek panoyu kullanmaya başlayabilirsiniz.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Başlık</th>
+                        <th>Öncelik</th>
+                        <th>Durum</th>
+                        <th>Oluşturulma Tarihi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var task in Model)
+                    {
+                        <tr class="@(task.Priority == "high" ? "priority-high-row" : "")">
+                            <td>@task.Id</td>
+                            <td>
+                                @if (task.Priority == "high")
+                                {
+                                    <strong>@task.Title</strong>
+                                }
+                                else
+                                {
+                                    @task.Title
+                                }
+                            </td>
+                            <td>
+                                @if (task.Priority == "high")
+                                {
+                                    <span class="badge badge-high">Yüksek</span>
+                                }
+                                else if (task.Priority == "normal")
+                                {
+                                    <span class="badge badge-normal">Normal</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-low">Düşük</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="status @(task.Status == "Tamamlandı" ? "status-completed" : "status-open")">
+                                    @task.Status
+                                </span>
+                            </td>
+                            <td>@task.CreatedAt.ToString("yyyy-MM-dd")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
