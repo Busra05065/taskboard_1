@@ -1,7 +1,7 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
 using TaskBoard.Web.Models;
+using TaskBoard.Web.Services;
 
 namespace TaskBoard.Web.Controllers
 {
@@ -9,78 +9,58 @@ namespace TaskBoard.Web.Controllers
     [Route("api/tasks")]
     public class TasksApiController : ControllerBase
     {
-        
-        private static readonly List<TaskItem> Tasks = new List<TaskItem>
-        {
-            new TaskItem { Id = 1, Title = "Frontend ve Backend Entegrasyonu", Priority = "high", Status = "in-progress" },
-            new TaskItem { Id = 2, Title = "REST API Endpoint Tasarımı", Priority = "normal", Status = "open" },
-            new TaskItem { Id = 3, Title = "CORS Politikası Yapılandırması", Priority = "low", Status = "completed" }
-        };
+        private readonly ITaskService _taskService;
 
-        
+        // Controller sadece Service ile konuşur, DbContext doğrudan kullanılmaz
+        public TasksApiController(ITaskService taskService)
+        {
+            _taskService = taskService;
+        }
+
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            
-            var response = Tasks.Select(t => new
-            {
-                id = t.Id,
-                title = t.Title,
-                priority = t.Priority,
-                status = t.Status,
-                createdAt = t.CreatedAt
-            });
-
-            return Ok(response);
+            var tasks = await _taskService.GetAllAsync();
+            return Ok(tasks);
         }
 
-        
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var task = await _taskService.GetByIdAsync(id);
+            if (task == null) return NotFound(new { message = $"ID: {id} olan görev bulunamadı." });
+            return Ok(task);
+        }
+
         [HttpPost]
-        public IActionResult Create([FromBody] CreateTaskRequest request)
+        public async Task<IActionResult> Create([FromBody] CreateTaskDto request)
         {
-            
             if (request == null || string.IsNullOrWhiteSpace(request.Title))
-            {
                 return BadRequest(new { message = "Başlık zorunludur." });
-            }
 
-            var newTask = new TaskItem
-            {
-                Id = Tasks.Count > 0 ? Tasks.Max(t => t.Id) + 1 : 1,
-                Title = request.Title.Trim(),
-                Priority = string.IsNullOrWhiteSpace(request.Priority) ? "normal" : request.Priority,
-                Status = "open"
-            };
-
-            Tasks.Add(newTask);
-
-            
-            return Created($"/api/tasks/{newTask.Id}", new
-            {
-                id = newTask.Id,
-                title = newTask.Title,
-                priority = newTask.Priority,
-                status = newTask.Status
-            });
+            var result = await _taskService.CreateAsync(request);
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
-        
-        [HttpPatch("{id}/status")]
-        public IActionResult UpdateStatus(int id, [FromBody] UpdateTaskStatusRequest request)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateTaskDto request)
         {
-            var task = Tasks.FirstOrDefault(t => t.Id == id);
-            if (task == null)
-            {
-                return NotFound(new { message = $"ID: {id} olan görev bulunamadı." });
-            }
+            if (request == null || string.IsNullOrWhiteSpace(request.Title))
+                return BadRequest(new { message = "Başlık zorunludur." });
 
-            if (string.IsNullOrWhiteSpace(request.Status))
-            {
-                return BadRequest(new { message = "Durum alanı boş olamaz." });
-            }
+            var result = await _taskService.UpdateAsync(id, request);
+            if (result == null) return NotFound(new { message = $"ID: {id} olan kayıt bulunamadı." });
 
-            task.Status = request.Status;
-            return Ok(new { message = "Durum başarıyla güncellendi.", task });
+            return Ok(result);
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var deleted = await _taskService.DeleteAsync(id);
+            if (!deleted) return NotFound(new { message = $"ID: {id} olan kayıt bulunamadı." });
+
+            return NoContent(); // 204 No Content
         }
     }
 }
