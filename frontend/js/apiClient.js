@@ -10,7 +10,7 @@ async function request(endpoint, options = {}) {
     const response = await fetch(url, { 
         ...options, 
         headers,
-        credentials: 'include' 
+        credentials: 'include'
     });
 
     if (response.status === 401) {
@@ -37,7 +37,18 @@ async function request(endpoint, options = {}) {
 }
 
 export const taskApi = {
-    getAll: () => request('/api/tasks'),
+    getAll: (params = {}) => {
+        const query = new URLSearchParams();
+        if (params.search) query.append('search', params.search);
+        if (params.status) query.append('status', params.status);
+        if (params.priority) query.append('priority', params.priority);
+        if (params.sortBy) query.append('sortBy', params.sortBy);
+        if (params.page) query.append('page', params.page);
+        if (params.pageSize) query.append('pageSize', params.pageSize);
+
+        const queryString = query.toString();
+        return request(`/api/tasks${queryString ? `?${queryString}` : ''}`);
+    },
     create: (data) => request('/api/tasks', { method: 'POST', body: JSON.stringify(data) }),
     update: (id, data) => request(`/api/tasks/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id) => request(`/api/tasks/${id}`, { method: 'DELETE' })

@@ -10,7 +10,6 @@ namespace TaskBoard.Tests
 {
     public class TaskServiceTests
     {
-        
         private TaskBoardDbContext CreateDbContext()
         {
             var options = new DbContextOptionsBuilder<TaskBoardDbContext>()
@@ -20,13 +19,11 @@ namespace TaskBoard.Tests
             return new TaskBoardDbContext(options);
         }
 
-        
         private TaskService CreateService(TaskBoardDbContext context)
         {
             return new TaskService(context);
         }
 
-        
         [Fact]
         public async Task CreateAsync_ShouldRejectEmptyTitle()
         {
@@ -37,7 +34,6 @@ namespace TaskBoard.Tests
             await Assert.ThrowsAsync<ArgumentException>(() => service.CreateAsync(request));
         }
 
-        
         [Fact]
         public async Task CreateAsync_ShouldCreateTask_WhenValidTitleProvided()
         {
@@ -53,7 +49,6 @@ namespace TaskBoard.Tests
             Assert.True(result.Id > 0);
         }
 
-        
         [Fact]
         public async Task DeleteAsync_ShouldReturnFalse_WhenTaskDoesNotExist()
         {
@@ -65,7 +60,6 @@ namespace TaskBoard.Tests
             Assert.False(result);
         }
 
-        
         [Fact]
         public async Task GetAllAsync_ShouldReturnAllTasks()
         {
@@ -75,12 +69,12 @@ namespace TaskBoard.Tests
             await service.CreateAsync(new CreateTaskDto { Title = "Görev 1" });
             await service.CreateAsync(new CreateTaskDto { Title = "Görev 2" });
 
-            var tasks = await service.GetAllAsync();
+            var result = await service.GetAllAsync(new TaskQuery { PageSize = 10 });
 
-            Assert.Equal(2, tasks.Count);
+            Assert.Equal(2, result.TotalCount);
+            Assert.Equal(2, result.Items.Count);
         }
 
-        
         [Fact]
         public async Task UpdateAsync_ShouldReturnNull_WhenTaskDoesNotExist()
         {

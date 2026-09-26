@@ -1,5 +1,6 @@
 C:\Users\busra\OneDrive\Masaüstü\d-1\publish\TaskBoard.Web.exe
 C:\Users\busra\OneDrive\Masaüstü\d-1\publish\appsettings.Development.json
+C:\Users\busra\OneDrive\Masaüstü\d-1\publish\appsettings.Example.json
 C:\Users\busra\OneDrive\Masaüstü\d-1\publish\appsettings.json
 C:\Users\busra\OneDrive\Masaüstü\d-1\publish\TaskBoard.Web.dll
 C:\Users\busra\OneDrive\Masaüstü\d-1\publish\TaskBoard.Web.runtimeconfig.json

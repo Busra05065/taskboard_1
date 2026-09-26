@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskBoard - Gün 17 Yetkilendirme</title>
+    <title>TaskBoard - Gün 20 Final</title>
     <link rel="stylesheet" href="style.css">
     <style>
         * { 
@@ -16,7 +16,7 @@
             padding: 20px; 
         }
         .container { 
-            max-width: 650px; 
+            max-width: 750px; 
             margin: 20px auto; 
             background: #ffffff; 
             padding: 24px; 
@@ -40,11 +40,29 @@
             padding: 8px; 
             border: 1px solid #ccc; 
             border-radius: 4px; 
-            font-size: 14px;
+            font-size: 14px; 
         }
         .form-control:focus {
             outline: none;
             border-color: #0066cc;
+        }
+        .filter-bar { 
+            display: flex; 
+            gap: 8px; 
+            margin: 16px 0; 
+            flex-wrap: wrap; 
+            background: #fafbfc; 
+            padding: 12px; 
+            border-radius: 6px; 
+            border: 1px solid #e1e4e8; 
+        }
+        .filter-bar input, .filter-bar select { 
+            flex: 1; 
+            min-width: 130px; 
+            padding: 6px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            font-size: 14px;
         }
         .btn { 
             padding: 8px 14px; 
@@ -52,7 +70,7 @@
             border: none; 
             cursor: pointer; 
             font-weight: bold; 
-            font-size: 14px;
+            font-size: 14px; 
         }
         .btn-primary { 
             background: #0066cc; 
@@ -67,20 +85,20 @@
             color: white; 
         }
         .btn:disabled { 
-            opacity: 0.6; 
+            opacity: 0.5; 
             cursor: not-allowed; 
         }
         .error-message { 
             color: #dc3545; 
             margin-top: 8px; 
             font-weight: 500; 
-            font-size: 14px;
+            font-size: 14px; 
         }
-        .task-list {
-            margin-top: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        .task-list { 
+            margin-top: 16px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
         }
         .task-card { 
             display: flex; 
@@ -89,38 +107,30 @@
             padding: 12px 16px; 
             border: 1px solid #e1e4e8; 
             border-radius: 6px; 
-            background-color: #fafbfc;
+            background-color: #ffffff; 
         }
-        .task-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .badge {
-            font-size: 12px;
-            padding: 2px 8px;
-            border-radius: 12px;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-        .badge-low { background-color: #e2f0d9; color: #385723; }
-        .badge-normal { background-color: #fff2cc; color: #b25900; }
-        .badge-high { background-color: #fce4d6; color: #c65911; }
         .empty-state { 
             color: #6c757d; 
-            font-style: italic; 
             text-align: center; 
-            padding: 20px; 
-            background: #fdfdfd;
-            border: 1px dashed #d0d7de;
-            border-radius: 6px;
-            margin-top: 10px;
+            padding: 24px; 
+            background: #fdfdfd; 
+            border: 1px dashed #d0d7de; 
+            border-radius: 6px; 
+            margin-top: 10px; 
+        }
+        .pagination-bar { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-top: 20px; 
+            padding-top: 12px; 
+            border-top: 1px solid #e1e4e8; 
         }
     </style>
 </head>
 <body>
     <div class="container">
-    
+       
         <div id="authSection" class="auth-bar">
             
             <form id="loginForm" style="display: flex; gap: 8px; width: 100%;">
@@ -140,7 +150,7 @@
         <hr style="margin: 20px 0; border: none; border-top: 1px solid #e1e4e8;">
 
         
-        <h2 style="margin-top: 0; color: #333;">Görev Panosu</h2>
+        <h2 style="margin-top: 0; color: #333;">Yeni Görev Ekle</h2>
         <form id="taskForm">
             <div class="form-group">
                 <input type="text" id="taskTitle" class="form-control" placeholder="Görev başlığı girin..." required>
@@ -153,15 +163,43 @@
                 </select>
             </div>
             <button type="submit" id="submitBtn" class="btn btn-primary">Görev Ekle</button>
-            
-            
             <div id="formError" class="error-message"></div>
         </form>
 
+        <h3 style="margin-top: 28px; color: #333;">Görev Listesi</h3>
+
         
-        <h3 style="margin-top: 24px; color: #333;">Görevler</h3>
+        <div class="filter-bar">
+            <input type="text" id="searchInput" placeholder="Görev ara... (Debounce 300ms)">
+            <select id="priorityFilter">
+                <option value="">Tüm Öncelikler</option>
+                <option value="low">Düşük</option>
+                <option value="normal">Normal</option>
+                <option value="high">Yüksek</option>
+            </select>
+            <select id="sortFilter">
+                <option value="desc">Yeniden Eskiye</option>
+                <option value="asc">Eskiden Yeniye</option>
+            </select>
+            <select id="pageSizeFilter">
+                <option value="5">5 Kayıt</option>
+                <option value="10" selected>10 Kayıt</option>
+                <option value="20">20 Kayıt</option>
+            </select>
+        </div>
+
+        
         <div id="taskList" class="task-list"></div>
-        <div id="emptyState" class="empty-state" style="display: none;">Henüz görev bulunmuyor.</div>
+        <div id="emptyState" class="empty-state" style="display: none;"></div>
+
+        
+        <div class="pagination-bar">
+            <span id="totalInfo" style="font-size: 13px; color: #555;">Toplam 0 kayıt | Sayfa 1/1</span>
+            <div style="display: flex; gap: 6px;">
+                <button id="prevPageBtn" class="btn btn-secondary">Önceki</button>
+                <button id="nextPageBtn" class="btn btn-secondary">Sonraki</button>
+            </div>
+        </div>
     </div>
 
     

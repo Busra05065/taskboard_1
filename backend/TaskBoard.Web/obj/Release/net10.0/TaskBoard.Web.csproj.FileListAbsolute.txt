@@ -210,3 +210,4 @@ C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Web\obj\Release\net10.0
 C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Web\obj\Release\net10.0\TaskBoard.Web.pdb
 C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Web\obj\Release\net10.0\TaskBoard.Web.genruntimeconfig.cache
 C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Web\obj\Release\net10.0\ref\TaskBoard.Web.dll
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Web\bin\Release\net10.0\appsettings.Example.json

@@ -6,7 +6,7 @@ namespace TaskBoard.Web.Services
 {
     public interface ITaskService
     {
-        Task<List<TaskResponse>> GetAllAsync();
+        Task<PagedResult<TaskResponse>> GetAllAsync(TaskQuery? query = null);
         Task<TaskResponse?> GetByIdAsync(int id);
         Task<TaskResponse> CreateAsync(CreateTaskDto request);
         Task<TaskResponse?> UpdateAsync(int id, UpdateTaskDto request);

@@ -17,11 +17,64 @@ namespace TaskBoard.Web.Services
             _context = context;
         }
 
-        public async Task<List<TaskResponse>> GetAllAsync()
+        public async Task<PagedResult<TaskResponse>> GetAllAsync(TaskQuery? query = null)
         {
-            return await _context.TaskItems
+            query ??= new TaskQuery();
+
+            var dbQuery = _context.TaskItems.AsQueryable();
+
+            
+            if (!string.IsNullOrWhiteSpace(query.Search))
+            {
+                var term = query.Search.Trim().ToLower();
+                dbQuery = dbQuery.Where(t => t.Title.ToLower().Contains(term) || 
+                                            (t.Description != null && t.Description.ToLower().Contains(term)));
+            }
+
+            
+            if (!string.IsNullOrWhiteSpace(query.Status))
+            {
+                var status = query.Status.Trim().ToLower();
+                dbQuery = dbQuery.Where(t => t.Status.ToLower() == status);
+            }
+
+            
+            if (!string.IsNullOrWhiteSpace(query.Priority))
+            {
+                var priority = query.Priority.Trim().ToLower();
+                dbQuery = dbQuery.Where(t => t.Priority.ToLower() == priority);
+            }
+
+            
+            var totalCount = await dbQuery.CountAsync();
+
+            
+            if (query.SortBy?.ToLower() == "asc")
+            {
+                dbQuery = dbQuery.OrderBy(t => t.CreatedAt);
+            }
+            else
+            {
+                dbQuery = dbQuery.OrderByDescending(t => t.CreatedAt);
+            }
+
+            
+            var page = query.Page < 1 ? 1 : query.Page;
+            var pageSize = query.PageSize < 1 ? 10 : query.PageSize;
+
+            var items = await dbQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(t => MapToResponse(t))
                 .ToListAsync();
+
+            return new PagedResult<TaskResponse>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
         public async Task<TaskResponse?> GetByIdAsync(int id)
@@ -32,7 +85,6 @@ namespace TaskBoard.Web.Services
 
         public async Task<TaskResponse> CreateAsync(CreateTaskDto request)
         {
-            // Testin beklediği hata fırlatma kontrolü (Guard Clause)
             if (string.IsNullOrWhiteSpace(request?.Title))
             {
                 throw new ArgumentException("Görev başlığı zorunludur.");

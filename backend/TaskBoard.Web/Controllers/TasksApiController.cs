@@ -19,10 +19,10 @@ namespace TaskBoard.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] TaskQuery query)
         {
-            var tasks = await _taskService.GetAllAsync();
-            return Ok(tasks);
+            var result = await _taskService.GetAllAsync(query);
+            return Ok(result);
         }
 
         [HttpGet("{id:int}")]
@@ -43,7 +43,6 @@ namespace TaskBoard.Web.Controllers
             }
             catch (ArgumentException ex)
             {
-                
                 return BadRequest(new { message = ex.Message });
             }
         }

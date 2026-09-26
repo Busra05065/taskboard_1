@@ -137,3 +137,4 @@ C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Tests\obj\Debug\net10.0
 C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Tests\obj\Debug\net10.0\TaskBoard.Tests.pdb
 C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Tests\obj\Debug\net10.0\TaskBoard.Tests.genruntimeconfig.cache
 C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Tests\obj\Debug\net10.0\ref\TaskBoard.Tests.dll
+C:\Users\busra\OneDrive\Masaüstü\d-1\backend\TaskBoard.Tests\bin\Debug\net10.0\appsettings.Example.json

@@ -3,6 +3,17 @@ import { taskApi, authApi } from './apiClient.js';
 let currentUser = { isAuthenticated: false, username: null, role: null };
 
 
+let queryState = {
+    search: '',
+    priority: '',
+    sortBy: 'desc',
+    page: 1,
+    pageSize: 10
+};
+
+let totalPages = 1;
+
+
 const loginForm = document.getElementById('loginForm');
 const userProfile = document.getElementById('userProfile');
 const loginUsername = document.getElementById('loginUsername');
@@ -12,14 +23,22 @@ const displayRole = document.getElementById('displayRole');
 const logoutBtn = document.getElementById('logoutBtn');
 const authError = document.getElementById('authError');
 
-
 const taskForm = document.getElementById('taskForm');
 const taskTitle = document.getElementById('taskTitle');
 const taskPriority = document.getElementById('taskPriority');
 const submitBtn = document.getElementById('submitBtn');
 const formError = document.getElementById('formError');
+
+const searchInput = document.getElementById('searchInput');
+const priorityFilter = document.getElementById('priorityFilter');
+const sortFilter = document.getElementById('sortFilter');
+const pageSizeFilter = document.getElementById('pageSizeFilter');
+
 const taskList = document.getElementById('taskList');
 const emptyState = document.getElementById('emptyState');
+const totalInfo = document.getElementById('totalInfo');
+const prevPageBtn = document.getElementById('prevPageBtn');
+const nextPageBtn = document.getElementById('nextPageBtn');
 
 
 async function checkAuth() {
@@ -47,7 +66,6 @@ function updateAuthUI() {
     loadTasks();
 }
 
-
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     authError.textContent = '';
@@ -61,7 +79,6 @@ loginForm.addEventListener('submit', async (e) => {
     }
 });
 
-
 logoutBtn.addEventListener('click', async () => {
     await authApi.logout();
     await checkAuth();
@@ -71,26 +88,40 @@ logoutBtn.addEventListener('click', async () => {
 async function loadTasks() {
     try {
         formError.textContent = '';
-        const tasks = await taskApi.getAll();
-        renderTasks(tasks);
+        const data = await taskApi.getAll(queryState);
+        renderTasks(data);
     } catch (err) {
         formError.textContent = 'Görevler yüklenemedi: ' + err.message;
     }
 }
 
-function renderTasks(tasks) {
+function renderTasks(data) {
     taskList.innerHTML = '';
-    if (!tasks || tasks.length === 0) {
+    const { items, totalCount, page, pageSize, totalPages: pages } = data;
+    totalPages = pages || 1;
+
+    
+    totalInfo.textContent = `Toplam ${totalCount} kayıt | Sayfa ${page}/${totalPages}`;
+    prevPageBtn.disabled = page <= 1;
+    nextPageBtn.disabled = page >= totalPages;
+
+    
+    if (!items || items.length === 0) {
         emptyState.style.display = 'block';
+        if (queryState.search) {
+            emptyState.textContent = `"${queryState.search}" aramasına uygun görev bulunamadı.`;
+        } else {
+            emptyState.textContent = 'Henüz eklenmiş bir görev bulunmuyor.';
+        }
         return;
     }
+
     emptyState.style.display = 'none';
 
-    tasks.forEach(task => {
+    items.forEach(task => {
         const item = document.createElement('div');
         item.className = 'task-card';
 
-        
         const deleteButtonHtml = currentUser.role === 'Admin'
             ? `<button class="btn btn-danger delete-btn" data-id="${task.id}">Sil</button>`
             : '';
@@ -106,11 +137,55 @@ function renderTasks(tasks) {
         taskList.appendChild(item);
     });
 
-    
     document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', () => deleteTask(btn.dataset.id, btn));
     });
 }
+
+
+let debounceTimer;
+searchInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        queryState.search = searchInput.value;
+        queryState.page = 1;
+        loadTasks();
+    }, 300);
+});
+
+
+priorityFilter.addEventListener('change', () => {
+    queryState.priority = priorityFilter.value;
+    queryState.page = 1;
+    loadTasks();
+});
+
+sortFilter.addEventListener('change', () => {
+    queryState.sortBy = sortFilter.value;
+    queryState.page = 1;
+    loadTasks();
+});
+
+pageSizeFilter.addEventListener('change', () => {
+    queryState.pageSize = parseInt(pageSizeFilter.value);
+    queryState.page = 1;
+    loadTasks();
+});
+
+
+prevPageBtn.addEventListener('click', () => {
+    if (queryState.page > 1) {
+        queryState.page--;
+        loadTasks();
+    }
+});
+
+nextPageBtn.addEventListener('click', () => {
+    if (queryState.page < totalPages) {
+        queryState.page++;
+        loadTasks();
+    }
+});
 
 
 taskForm.addEventListener('submit', async (e) => {
@@ -118,58 +193,41 @@ taskForm.addEventListener('submit', async (e) => {
     formError.textContent = '';
 
     const titleValue = taskTitle.value.trim();
-
-    
     if (!titleValue) {
-        formError.textContent = 'Lütfen geçerli bir görev başlığı girin (Boş bırakılamaz).';
-        taskTitle.focus();
+        formError.textContent = 'Görev başlığı boş bırakılamaz.';
         return;
     }
 
-   
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Ekleniyor...';
-
-    const payload = {
-        title: titleValue,
-        priority: taskPriority.value
-    };
-
     try {
-        await taskApi.create(payload);
+        await taskApi.create({
+            title: titleValue,
+            priority: taskPriority.value
+        });
         taskTitle.value = '';
         taskPriority.value = 'normal';
+        queryState.page = 1;
         await loadTasks();
     } catch (err) {
-        
         formError.textContent = err.message;
     } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Görev Ekle';
     }
 });
 
-async function deleteTask(id, btnElement) {
-    const isConfirmed = confirm('Bu görevi silmek istediğinize emin misiniz?');
-    if (!isConfirmed) return;
 
-    if (btnElement) {
-        btnElement.disabled = true;
-        btnElement.textContent = 'Siliniyor...';
-    }
+async function deleteTask(id, btnElement) {
+    if (!confirm('Bu görevi silmek istediğinize emin misiniz?')) return;
+    if (btnElement) btnElement.disabled = true;
 
     try {
         await taskApi.delete(id);
         await loadTasks();
     } catch (err) {
         alert(err.message);
-        if (btnElement) {
-            btnElement.disabled = false;
-            btnElement.textContent = 'Sil';
-        }
+        if (btnElement) btnElement.disabled = false;
     }
 }
-
 
 function escapeHtml(text) {
     if (!text) return '';
@@ -177,7 +235,6 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
-
 
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
