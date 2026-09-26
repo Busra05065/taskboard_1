@@ -74,7 +74,7 @@ async function loadTasks() {
         const tasks = await taskApi.getAll();
         renderTasks(tasks);
     } catch (err) {
-        formError.textContent = err.message;
+        formError.textContent = 'Görevler yüklenemedi: ' + err.message;
     }
 }
 
@@ -97,8 +97,8 @@ function renderTasks(tasks) {
 
         item.innerHTML = `
             <div>
-                <strong>${task.title}</strong>
-                <span style="font-size: 12px; color: gray; margin-left: 6px;">[${task.priority}]</span>
+                <strong>${escapeHtml(task.title)}</strong>
+                <span style="font-size: 12px; color: gray; margin-left: 6px;">[${task.priority || 'normal'}]</span>
             </div>
             <div>${deleteButtonHtml}</div>
         `;
@@ -116,37 +116,68 @@ function renderTasks(tasks) {
 taskForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     formError.textContent = '';
+
+    const titleValue = taskTitle.value.trim();
+
+    
+    if (!titleValue) {
+        formError.textContent = 'Lütfen geçerli bir görev başlığı girin (Boş bırakılamaz).';
+        taskTitle.focus();
+        return;
+    }
+
+   
     submitBtn.disabled = true;
+    submitBtn.textContent = 'Ekleniyor...';
+
+    const payload = {
+        title: titleValue,
+        priority: taskPriority.value
+    };
 
     try {
-        await taskApi.create({
-            title: taskTitle.value,
-            priority: taskPriority.value
-        });
+        await taskApi.create(payload);
         taskTitle.value = '';
+        taskPriority.value = 'normal';
         await loadTasks();
     } catch (err) {
+        
         formError.textContent = err.message;
     } finally {
         submitBtn.disabled = false;
+        submitBtn.textContent = 'Görev Ekle';
     }
 });
 
-
 async function deleteTask(id, btnElement) {
-    if (!confirm('Bu görevi silmek istediğinize emin misiniz?')) return;
+    const isConfirmed = confirm('Bu görevi silmek istediğinize emin misiniz?');
+    if (!isConfirmed) return;
 
-    if (btnElement) btnElement.disabled = true;
+    if (btnElement) {
+        btnElement.disabled = true;
+        btnElement.textContent = 'Siliniyor...';
+    }
 
     try {
         await taskApi.delete(id);
         await loadTasks();
     } catch (err) {
-        
         alert(err.message);
-        if (btnElement) btnElement.disabled = false;
+        if (btnElement) {
+            btnElement.disabled = false;
+            btnElement.textContent = 'Sil';
+        }
     }
 }
+
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();

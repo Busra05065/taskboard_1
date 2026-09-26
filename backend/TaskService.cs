@@ -1,71 +1,143 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using TaskBoard.Web.Data;
+using TaskBoard.Web.Models;
 
-namespace TaskBoard.ConsoleApp
+namespace TaskBoard.Web.Services
 {
-    public class TaskService
+    public class TaskService : ITaskService
     {
-        private readonly List<TaskItem> _tasks = new List<TaskItem>();
-        private int _nextId = 1;
+        private readonly TaskBoardDbContext _context;
+        private readonly ILogger<TaskService> _logger;
 
-        
-        public List<TaskItem> GetAll()
+        public TaskService(TaskBoardDbContext context, ILogger<TaskService> logger)
         {
-            return _tasks.ToList();
+            _context = context;
+            _logger = logger;
         }
 
-        
-        public List<TaskItem> GetByStatus(TaskStatus status)
+        public async Task<List<TaskResponse>> GetAllAsync()
         {
-            return _tasks.Where(t => t.Status == status).ToList();
+            return await _context.TaskItems
+                .Select(t => new TaskResponse
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    Description = t.Description,
+                    Priority = t.Priority,
+                    Status = t.Status,
+                    CreatedAt = t.CreatedAt
+                })
+                .ToListAsync();
         }
 
-        
-        public (bool IsSuccess, string Message) Add(string title, string priority)
+        public async Task<TaskResponse?> GetByIdAsync(int id)
         {
-            if (string.IsNullOrWhiteSpace(title))
+            var t = await _context.TaskItems.FindAsync(id);
+            if (t == null) return null;
+
+            return new TaskResponse
             {
-                return (false, "Görev başlığı boş bırakılamaz!");
-            }
+                Id = t.Id,
+                Title = t.Title,
+                Description = t.Description,
+                Priority = t.Priority,
+                Status = t.Status,
+                CreatedAt = t.CreatedAt
+            };
+        }
 
+        public async Task<TaskResponse> CreateAsync(CreateTaskDto request)
+        {
             
-            bool alreadyExists = _tasks.Any(t => t.Title.Equals(title.Trim(), StringComparison.OrdinalIgnoreCase));
-            if (alreadyExists)
+            if (string.IsNullOrWhiteSpace(request?.Title))
             {
-                return (false, "Bu başlıkla zaten bir görev mevcut!");
+                _logger.LogWarning("Geçersiz görev ekleme denemesi: Başlık boş.");
+                throw new ArgumentException("Görev başlığı zorunludur.");
             }
 
-            var newTask = new TaskItem
+            var cleanTitle = request.Title.Trim();
+            _logger.LogInformation("Yeni görev oluşturuluyor: {Title}", cleanTitle);
+
+            var task = new TaskItem
             {
-                Id = _nextId++,
-                Title = title.Trim(),
-                Priority = priority,
-                Status = TaskStatus.Open,
-                CreatedAt = DateTime.Now
+                Title = cleanTitle,
+                Description = request.Description?.Trim(),
+                Priority = string.IsNullOrWhiteSpace(request.Priority) ? "normal" : request.Priority.Trim().ToLower(),
+                Status = "open",
+                CreatedAt = DateTime.UtcNow
             };
 
-            _tasks.Add(newTask);
-            return (true, "Görev başarıyla eklendi.");
+            _context.TaskItems.Add(task);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Görev başarıyla oluşturuldu. ID: {TaskId}", task.Id);
+
+            return new TaskResponse
+            {
+                Id = task.Id,
+                Title = task.Title,
+                Description = task.Description,
+                Priority = task.Priority,
+                Status = task.Status,
+                CreatedAt = task.CreatedAt
+            };
         }
 
-        
-        public (bool IsSuccess, string Message) MarkAsDone(int id)
+        public async Task<TaskResponse?> UpdateAsync(int id, UpdateTaskDto request)
         {
-            var task = _tasks.FirstOrDefault(t => t.Id == id);
+            
+            if (string.IsNullOrWhiteSpace(request?.Title))
+            {
+                _logger.LogWarning("Geçersiz görev güncelleme denemesi: ID {TaskId} için başlık boş.", id);
+                throw new ArgumentException("Görev başlığı zorunludur.");
+            }
+
+            var task = await _context.TaskItems.FindAsync(id);
             if (task == null)
             {
-                return (false, "Belirtilen numarada bir görev bulunamadı.");
+                _logger.LogWarning("Güncellenmek istenen görev bulunamadı. ID: {TaskId}", id);
+                return null;
             }
 
-            if (task.Status == TaskStatus.Done)
+            var cleanTitle = request.Title.Trim();
+            _logger.LogInformation("Görev güncelleniyor. ID: {TaskId}, Yeni Başlık: {Title}", id, cleanTitle);
+
+            task.Title = cleanTitle;
+            if (request.Description != null) task.Description = request.Description.Trim();
+            if (!string.IsNullOrWhiteSpace(request.Priority)) task.Priority = request.Priority.Trim().ToLower();
+
+            await _context.SaveChangesAsync();
+
+            return new TaskResponse
             {
-                return (false, "Bu görev zaten tamamlanmış!");
+                Id = task.Id,
+                Title = task.Title,
+                Description = task.Description,
+                Priority = task.Priority,
+                Status = task.Status,
+                CreatedAt = task.CreatedAt
+            };
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var task = await _context.TaskItems.FindAsync(id);
+            if (task == null)
+            {
+                _logger.LogWarning("Silinmek istenen görev bulunamadı. ID: {TaskId}", id);
+                return false;
             }
 
-            task.Status = TaskStatus.Done;
-            task.CompletedAt = DateTime.Now; 
-            return (true, $"'{task.Title}' başlıklı görev tamamlandı olarak işaretlendi.");
+            _logger.LogInformation("Görev siliniyor. ID: {TaskId}", id);
+            _context.TaskItems.Remove(task);
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("Görev başarıyla silindi. ID: {TaskId}", id);
+            return true;
         }
     }
 }

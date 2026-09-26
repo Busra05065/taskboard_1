@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,33 +36,39 @@ namespace TaskBoard.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTaskDto request)
         {
-            if (request == null || string.IsNullOrWhiteSpace(request.Title))
-                return BadRequest(new { message = "Başlık zorunludur." });
-
-            var result = await _taskService.CreateAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            try
+            {
+                var result = await _taskService.CreateAsync(request);
+                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            }
+            catch (ArgumentException ex)
+            {
+                
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateTaskDto request)
         {
-            if (request == null || string.IsNullOrWhiteSpace(request.Title))
-                return BadRequest(new { message = "Başlık zorunludur." });
-
-            var result = await _taskService.UpdateAsync(id, request);
-            if (result == null) return NotFound(new { message = $"ID: {id} olan kayıt bulunamadı." });
-
-            return Ok(result);
+            try
+            {
+                var result = await _taskService.UpdateAsync(id, request);
+                if (result == null) return NotFound(new { message = $"ID: {id} olan kayıt bulunamadı." });
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
-        
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _taskService.DeleteAsync(id);
             if (!deleted) return NotFound(new { message = $"ID: {id} olan kayıt bulunamadı." });
-
             return NoContent();
         }
     }
