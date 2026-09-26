@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskBoard.Web.Models;
 using TaskBoard.Web.Services;
@@ -11,7 +12,6 @@ namespace TaskBoard.Web.Controllers
     {
         private readonly ITaskService _taskService;
 
-        
         public TasksApiController(ITaskService taskService)
         {
             _taskService = taskService;
@@ -54,13 +54,15 @@ namespace TaskBoard.Web.Controllers
             return Ok(result);
         }
 
+        
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _taskService.DeleteAsync(id);
             if (!deleted) return NotFound(new { message = $"ID: {id} olan kayıt bulunamadı." });
 
-            return NoContent(); 
+            return NoContent();
         }
     }
 }

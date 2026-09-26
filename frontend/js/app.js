@@ -1,4 +1,16 @@
-import { taskApi } from './apiClient.js';
+import { taskApi, authApi } from './apiClient.js';
+
+let currentUser = { isAuthenticated: false, username: null, role: null };
+
+
+const loginForm = document.getElementById('loginForm');
+const userProfile = document.getElementById('userProfile');
+const loginUsername = document.getElementById('loginUsername');
+const loginPassword = document.getElementById('loginPassword');
+const displayUsername = document.getElementById('displayUsername');
+const displayRole = document.getElementById('displayRole');
+const logoutBtn = document.getElementById('logoutBtn');
+const authError = document.getElementById('authError');
 
 
 const taskForm = document.getElementById('taskForm');
@@ -10,21 +22,64 @@ const taskList = document.getElementById('taskList');
 const emptyState = document.getElementById('emptyState');
 
 
+async function checkAuth() {
+    try {
+        const user = await authApi.getCurrentUser();
+        currentUser = user;
+        updateAuthUI();
+    } catch (_) {
+        currentUser = { isAuthenticated: false };
+        updateAuthUI();
+    }
+}
+
+function updateAuthUI() {
+    authError.textContent = '';
+    if (currentUser.isAuthenticated) {
+        loginForm.style.display = 'none';
+        userProfile.style.display = 'flex';
+        displayUsername.textContent = currentUser.username;
+        displayRole.textContent = currentUser.role;
+    } else {
+        loginForm.style.display = 'flex';
+        userProfile.style.display = 'none';
+    }
+    loadTasks();
+}
+
+
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    authError.textContent = '';
+    try {
+        await authApi.login(loginUsername.value, loginPassword.value);
+        loginUsername.value = '';
+        loginPassword.value = '';
+        await checkAuth();
+    } catch (err) {
+        authError.textContent = err.message;
+    }
+});
+
+
+logoutBtn.addEventListener('click', async () => {
+    await authApi.logout();
+    await checkAuth();
+});
+
+
 async function loadTasks() {
     try {
         formError.textContent = '';
         const tasks = await taskApi.getAll();
         renderTasks(tasks);
     } catch (err) {
-        formError.textContent = 'Görevler yüklenirken bir hata oluştu: ' + err.message;
+        formError.textContent = err.message;
     }
 }
 
-
 function renderTasks(tasks) {
     taskList.innerHTML = '';
-
-    
     if (!tasks || tasks.length === 0) {
         emptyState.style.display = 'block';
         return;
@@ -36,33 +91,24 @@ function renderTasks(tasks) {
         item.className = 'task-card';
 
         
-        const badgeClass = task.priority ? `badge-${task.priority.toLowerCase()}` : 'badge-normal';
+        const deleteButtonHtml = currentUser.role === 'Admin'
+            ? `<button class="btn btn-danger delete-btn" data-id="${task.id}">Sil</button>`
+            : '';
 
         item.innerHTML = `
-            <div class="task-info">
-                <strong>${escapeHtml(task.title)}</strong>
-                <span class="badge ${badgeClass}">${task.priority || 'normal'}</span>
-            </div>
             <div>
-                <button class="delete-btn" data-id="${task.id}">Sil</button>
+                <strong>${task.title}</strong>
+                <span style="font-size: 12px; color: gray; margin-left: 6px;">[${task.priority}]</span>
             </div>
+            <div>${deleteButtonHtml}</div>
         `;
 
         taskList.appendChild(item);
     });
 
     
-    bindDeleteButtons();
-}
-
-
-function bindDeleteButtons() {
-    const deleteButtons = document.querySelectorAll('.delete-btn');
-    deleteButtons.forEach(btn => {
-        btn.addEventListener('click', async () => {
-            const taskId = btn.dataset.id;
-            await deleteTask(taskId, btn);
-        });
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => deleteTask(btn.dataset.id, btn));
     });
 }
 
@@ -70,68 +116,38 @@ function bindDeleteButtons() {
 taskForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     formError.textContent = '';
-
-    const titleValue = taskTitle.value.trim();
-    if (!titleValue) {
-        formError.textContent = 'Lütfen geçerli bir görev başlığı girin.';
-        return;
-    }
-
-    
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Ekleniyor...';
-
-    const payload = {
-        title: titleValue,
-        priority: taskPriority.value
-    };
 
     try {
-        await taskApi.create(payload);
+        await taskApi.create({
+            title: taskTitle.value,
+            priority: taskPriority.value
+        });
         taskTitle.value = '';
-        taskPriority.value = 'normal';
-        await loadTasks(); 
+        await loadTasks();
     } catch (err) {
-        
-        formError.textContent = 'Görev eklenemedi: ' + err.message;
+        formError.textContent = err.message;
     } finally {
-        
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Görev Ekle';
     }
 });
 
 
 async function deleteTask(id, btnElement) {
-    
-    const isConfirmed = confirm('Bu görevi silmek istediğinize emin misiniz?');
-    if (!isConfirmed) return;
+    if (!confirm('Bu görevi silmek istediğinize emin misiniz?')) return;
 
-    
-    if (btnElement) {
-        btnElement.disabled = true;
-        btnElement.textContent = 'Siliniyor...';
-    }
+    if (btnElement) btnElement.disabled = true;
 
     try {
         await taskApi.delete(id);
-        await loadTasks(); 
+        await loadTasks();
     } catch (err) {
-        alert('Silme işlemi başarısız: ' + err.message);
-        if (btnElement) {
-            btnElement.disabled = false;
-            btnElement.textContent = 'Sil';
-        }
+        
+        alert(err.message);
+        if (btnElement) btnElement.disabled = false;
     }
 }
 
-
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-
-document.addEventListener('DOMContentLoaded', loadTasks);
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+});
