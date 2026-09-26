@@ -2,7 +2,7 @@ using System;
 
 namespace TaskBoard.Web.Models
 {
-    
+   
     public class TaskResponse
     {
         public int Id { get; set; }
