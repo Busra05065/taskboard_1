@@ -20,41 +20,29 @@ namespace TaskBoard.Web.Services
         public async Task<List<TaskResponse>> GetAllAsync()
         {
             return await _context.TaskItems
-                .Select(t => new TaskResponse
-                {
-                    Id = t.Id,
-                    Title = t.Title,
-                    Description = t.Description,
-                    Priority = t.Priority,
-                    Status = t.Status,
-                    CreatedAt = t.CreatedAt
-                })
+                .Select(t => MapToResponse(t))
                 .ToListAsync();
         }
 
         public async Task<TaskResponse?> GetByIdAsync(int id)
         {
-            var t = await _context.TaskItems.FindAsync(id);
-            if (t == null) return null;
-
-            return new TaskResponse
-            {
-                Id = t.Id,
-                Title = t.Title,
-                Description = t.Description,
-                Priority = t.Priority,
-                Status = t.Status,
-                CreatedAt = t.CreatedAt
-            };
+            var task = await _context.TaskItems.FindAsync(id);
+            return task == null ? null : MapToResponse(task);
         }
 
         public async Task<TaskResponse> CreateAsync(CreateTaskDto request)
         {
+            // Testin beklediği hata fırlatma kontrolü (Guard Clause)
+            if (string.IsNullOrWhiteSpace(request?.Title))
+            {
+                throw new ArgumentException("Görev başlığı zorunludur.");
+            }
+
             var task = new TaskItem
             {
                 Title = request.Title.Trim(),
-                Description = request.Description,
-                Priority = string.IsNullOrWhiteSpace(request.Priority) ? "normal" : request.Priority,
+                Description = request.Description?.Trim(),
+                Priority = string.IsNullOrWhiteSpace(request.Priority) ? "normal" : request.Priority.Trim().ToLower(),
                 Status = "open",
                 CreatedAt = DateTime.UtcNow
             };
@@ -62,37 +50,26 @@ namespace TaskBoard.Web.Services
             _context.TaskItems.Add(task);
             await _context.SaveChangesAsync();
 
-            return new TaskResponse
-            {
-                Id = task.Id,
-                Title = task.Title,
-                Description = task.Description,
-                Priority = task.Priority,
-                Status = task.Status,
-                CreatedAt = task.CreatedAt
-            };
+            return MapToResponse(task);
         }
 
         public async Task<TaskResponse?> UpdateAsync(int id, UpdateTaskDto request)
         {
+            if (string.IsNullOrWhiteSpace(request?.Title))
+            {
+                throw new ArgumentException("Görev başlığı zorunludur.");
+            }
+
             var task = await _context.TaskItems.FindAsync(id);
             if (task == null) return null;
 
             task.Title = request.Title.Trim();
-            if (request.Description != null) task.Description = request.Description;
-            if (!string.IsNullOrWhiteSpace(request.Priority)) task.Priority = request.Priority;
+            if (request.Description != null) task.Description = request.Description.Trim();
+            if (!string.IsNullOrWhiteSpace(request.Priority)) task.Priority = request.Priority.Trim().ToLower();
 
             await _context.SaveChangesAsync();
 
-            return new TaskResponse
-            {
-                Id = task.Id,
-                Title = task.Title,
-                Description = task.Description,
-                Priority = task.Priority,
-                Status = task.Status,
-                CreatedAt = task.CreatedAt
-            };
+            return MapToResponse(task);
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -103,6 +80,19 @@ namespace TaskBoard.Web.Services
             _context.TaskItems.Remove(task);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private static TaskResponse MapToResponse(TaskItem t)
+        {
+            return new TaskResponse
+            {
+                Id = t.Id,
+                Title = t.Title,
+                Description = t.Description,
+                Priority = t.Priority,
+                Status = t.Status,
+                CreatedAt = t.CreatedAt
+            };
         }
     }
 }
